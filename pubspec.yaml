@@ -1,0 +1,26 @@
+name: davidjalon_actividad4_semaforo
+description: Aplicación de semáforo controlada por voz.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0' # Asegura compatibilidad con Flutter moderno
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Librería principal para el reconocimiento de voz
+  speech_to_text: ^6.6.2
+  
+  # Opcional: Iconos adicionales de Cupertino (necesarios para iOS)
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
