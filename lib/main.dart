@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 void main() => runApp(
-  const MaterialApp(home: SemaforoApp(), debugShowCheckedModeBanner: false),
-);
+    const MaterialApp(home: SemaforoApp(), debugShowCheckedModeBanner: false));
 
 class SemaforoApp extends StatefulWidget {
   const SemaforoApp({super.key});
@@ -62,16 +61,14 @@ class _SemaforoAppState extends State<SemaforoApp>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-    _animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_animationController);
+    _animation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
   }
 
   void _procesarComando(String texto) {
-    if (_userStopped) return; // Si el usuario detuvo, no procesamos más
-
+    if (_userStopped) return;
     String comando = texto.toLowerCase();
+
     int idxVerde = comando.lastIndexOf("verde");
     int idxAmarillo = comando.lastIndexOf("amarillo");
     int idxRojo = comando.lastIndexOf("rojo");
@@ -88,8 +85,7 @@ class _SemaforoAppState extends State<SemaforoApp>
         _colorSemaforo = Colors.yellowAccent[700]!;
       else if (maxIdx == idxRojo)
         _colorSemaforo = Colors.redAccent[700]!;
-      else if (maxIdx == idxFiesta)
-        _iniciarFiesta();
+      else if (maxIdx == idxFiesta) _iniciarFiesta();
     });
   }
 
@@ -98,9 +94,8 @@ class _SemaforoAppState extends State<SemaforoApp>
     _modoFiesta = true;
     _timerFiesta = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
-        _colorSemaforo = Color(
-          (Random().nextDouble() * 0xFFFFFF).toInt(),
-        ).withOpacity(1.0);
+        _colorSemaforo =
+            Color((Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
       });
     });
   }
@@ -122,8 +117,6 @@ class _SemaforoAppState extends State<SemaforoApp>
           });
         }
       },
-      listenFor: const Duration(minutes: 1),
-      pauseFor: const Duration(seconds: 20),
     );
   }
 
@@ -138,11 +131,9 @@ class _SemaforoAppState extends State<SemaforoApp>
         _activarEscucha();
       }
     } else {
-      // RESET TOTAL
       _userStopped = true;
       await _speech.stop();
       _detenerFiesta();
-
       setState(() {
         _isListening = false;
         _colorSemaforo = _colorNeutro;
@@ -163,116 +154,59 @@ class _SemaforoAppState extends State<SemaforoApp>
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          "Semáforo",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.black,
-        elevation: 0,
-        centerTitle: true,
-      ),
+          title: const Text("Semáforo Inteligente"),
+          backgroundColor: Colors.black),
       body: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 450),
-          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // El semáforo animado
               AnimatedBuilder(
                 animation: _animation,
-                builder: (context, child) {
-                  return Container(
-                    width: 250,
-                    height: 250,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: _colorSemaforo.withOpacity(
-                            0.5 * _animation.value + 0.2,
-                          ),
-                          blurRadius: 40 + (20 * _animation.value),
-                          spreadRadius: 10 + (5 * _animation.value),
-                        ),
-                      ],
-                    ),
-                    child: child,
-                  );
-                },
+                builder: (context, child) => Container(
+                  width: 230,
+                  height: 230,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          color: _colorSemaforo.withOpacity(0.4),
+                          blurRadius: 40 * _animation.value + 20,
+                          spreadRadius: 10)
+                    ],
+                  ),
+                  child: child,
+                ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   decoration: BoxDecoration(
-                    color: _colorSemaforo,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 6),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.lightbulb_outline,
-                      size: 80,
-                      color: Colors.white70,
-                    ),
-                  ),
+                      color: _colorSemaforo,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 6)),
+                  child: const Icon(Icons.lightbulb_outline,
+                      size: 80, color: Colors.white70),
                 ),
               ),
               const SizedBox(height: 50),
+              // Indicador de micro
+              Text(_isListening ? "• ESCUCHANDO..." : "MICRO APAGADO",
+                  style: TextStyle(
+                      color:
+                          _isListening ? Colors.greenAccent : Colors.redAccent,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              // Cuadro de texto
               Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 20,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: _isListening
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    color: _isListening ? Colors.greenAccent : Colors.white10,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _isListening ? Icons.mic : Icons.mic_off,
-                      color: _isListening ? Colors.greenAccent : Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      _isListening ? "ESCUCHANDO..." : "MICRO DETENIDO",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _isListening
-                            ? Colors.greenAccent
-                            : Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                width: double.infinity,
-                height: 100,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    _transcripcion.isEmpty ? "Di un color..." : _transcripcion,
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(_transcripcion,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                    style: const TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
           ),
@@ -283,10 +217,7 @@ class _SemaforoAppState extends State<SemaforoApp>
         onPressed: _toggleEscucha,
         backgroundColor: _isListening ? Colors.redAccent : Colors.purpleAccent,
         label: Text(_isListening ? "DETENER" : "COMENZAR"),
-        icon: Icon(
-          _isListening ? Icons.stop_circle_outlined : Icons.mic_rounded,
-          color: Colors.white,
-        ),
+        icon: Icon(_isListening ? Icons.stop : Icons.mic),
       ),
     );
   }
